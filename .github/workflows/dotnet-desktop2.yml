@@ -1,0 +1,57 @@
+name: build dont maui app
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Debug]
+
+    runs-on: windows-latest  # For a list of available runner types, refer to
+                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+
+    env:
+      Solution_Name: GrabnGoApp                           # Replace with your solution name, i.e. MyWpfApp.sln.
+      #Test_Project_Path: your-test-project-path                 # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
+      #Wap_Project_Directory: GrabnGoApp\GrabnGoApp    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
+      #Wap_Project_Path: your-wap-project-path                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Keystore File
+      run: |
+        echo "${{ secrets.CERT }}" > MauiAppCenterDis.keystore.asc
+        gpg -d --passphrase "${{ secrets.PASSWORD }}" --batch MauiAppCenterDis.keystore.asc > MauiAppCenterDis.keystore
+        
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+        
+    # Install MAUI
+    - name: Install MAUI Workload
+      run: dotnet workload install maui        
+
+    # Restore
+    - name: Restore Dependencies
+      run: dotnet restore $env:Solution_Name/GrabnGoApp.csproj
+
+    # Build
+    - name: Build MAUI Android
+      run: dotnet publish $env:Solution_Name/GrabnGoApp.csproj -c Release -f net7.0-android /p:AndroidSigningKeyStore=MauiAppCenterDis.keystore /p:AndroidSigningKeyAlias=gitactionkey /p:AndroidSigningKeyPass="${{ secrets.PASSWORD }}"  --no-restore
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        path: |
+          ./**/*.aab
+          ./**/*.apk
