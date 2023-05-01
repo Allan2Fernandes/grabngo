@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+	x:Class="GrabnGoApp.AppShell"
+	xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+	xmlns:views="clr-namespace:GrabnGoApp.Views"
+	xmlns:local="clr-namespace:GrabnGoApp">
+
+	<TabBar>
+		<ShellContent
+			Title="Home"
+			Icon="iconblank.png"
+			ContentTemplate="{DataTemplate views:HomePage}" />
+		<ShellContent
+			Title="Menu"
+			Icon="iconblank.png"
+			ContentTemplate="{DataTemplate views:MenuPage}" />
+		<ShellContent
+			Title="Favourites"
+			Icon="iconblank.png"
+			ContentTemplate="{DataTemplate views:FavouritesPage}" />
+		<ShellContent
+			Title="Settings"
+			Icon="iconblank.png"
+			ContentTemplate="{DataTemplate views:SettingsPage}" />
+	</TabBar>
+</Shell>
